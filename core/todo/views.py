@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
+from django.core.mail import send_mail
 
 from .models import TodoTask
 from .serializers import (TaskSerializer, TaskCreateSerializer,
@@ -34,6 +35,13 @@ class CreateTask(CreateAPIView):
 
         if serializer.is_valid():
             task = serializer.save()
+            send_mail(
+                'New task',
+                f'{task.author} marked you in new task.',
+                str(task.task_is_set_to),
+                ['danchyk602@gmail.com'],
+                fail_silently=False,
+            )
             return Response(
                 TaskCreateSerializer(task).data, status=status.HTTP_201_CREATED
             )
