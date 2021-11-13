@@ -1,16 +1,14 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from account.models import UserBase
 
 
 class TodoTask(models.Model):
     title = models.CharField(max_length=255, verbose_name="Заголовок")
     text = models.TextField(verbose_name="Текст")
     author = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="Автор")
+        UserBase, on_delete=models.CASCADE, verbose_name="Автор")
     task_is_set_to = models.ForeignKey(
-        User,
+        UserBase,
         on_delete=models.CASCADE,
         related_name='user_tasks',
         null=True,
@@ -22,7 +20,8 @@ class TodoTask(models.Model):
     image = models.ImageField(
         upload_to='task_images/',
         verbose_name="Фотографія",
-        null=True
+        null=True,
+        blank=True
     )
 
     def __str__(self):
