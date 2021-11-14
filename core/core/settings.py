@@ -1,8 +1,14 @@
 import os
+import dotenv
+
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+
+dotenv_file = os.path.join(BASE_DIR, ".env")
+if os.path.isfile(dotenv_file):
+    dotenv.load_dotenv(dotenv_file)
 
 SECRET_KEY = 'django-insecure-o2-vwg1&@&xj0ty@=04jcx8e4r9+khed(3uos1slg3ururr&%^'
 
@@ -58,8 +64,13 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ['DATABASES_NAME'],
+        'USER': os.environ['DATABASES_USER'],
+        'PASSWORD': os.environ['DATABASES_PASSWORD'],
+        'HOST': 'localhost',
+        'PORT': '5432',
+
     }
 }
 
