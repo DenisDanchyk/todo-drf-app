@@ -48,7 +48,7 @@ class CreateTask(CreateAPIView):
                         fail_silently=False,
                     )
             return Response(
-                serializer.data, status=status.HTTP_201_CREATED
+                {'Success': 'True'}, status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,8 +62,13 @@ class SingleTask(RetrieveUpdateDestroyAPIView):
     queryset = TodoTask.objects.all()
     lookup_field = 'id'
 
+    def get(self, request, id, *args, **kwargs):
+        task = TodoTask.objects.get(pk=id)
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+
     def put(self, request, *args, **kwargs):
-        serializer = TaskCreateSerializer(data=request.data)
+        serializer = EditTaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.validated_data['author'] = self.request.user
             author = serializer.validated_data['author']
