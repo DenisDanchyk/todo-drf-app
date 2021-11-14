@@ -60,24 +60,20 @@ class SingleTask(RetrieveUpdateDestroyAPIView):
     queryset = TodoTask.objects.all()
     lookup_field = 'id'
 
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
         serializer = TaskCreateSerializer(data=request.data)
-
         if serializer.is_valid():
             serializer.validated_data['author'] = self.request.user
-            task = serializer.save()
-
-            if task.task_is_set_to.first() != None:
+            author = serializer.validated_data['author']
+            for user in serializer.validated_data['task_is_set_to']:
                 send_mail(
                     'New task',
-                    f'{task.author} marked you in new task.',
+                    f'{author} marked you in new task.',
                     'danchyk602@gmail.com',
-                    [str(task.task_is_set_to.first())],
+                    [str(user)],
                     fail_silently=False,
                 )
-            return Response(
-                serializer.data, status=status.HTTP_201_CREATED
-            )
+            return self.update(request, *args, **kwargs)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
