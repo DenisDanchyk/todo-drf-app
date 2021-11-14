@@ -11,7 +11,7 @@ from .serializers import (TaskSerializer, TaskCreateSerializer,
 from .permissions import IsOwner
 
 
-class Tasks(APIView):
+class ListOfTasks(APIView):
     """
         Get list of all tasks
     """
@@ -34,21 +34,24 @@ class CreateTask(CreateAPIView):
         serializer = TaskCreateSerializer(data=request.data)
 
         if serializer.is_valid():
+            serializer.validated_data['author'] = self.request.user
             task = serializer.save()
-            send_mail(
-                'New task',
-                f'{task.author} marked you in new task.',
-                str(task.task_is_set_to),
-                ['danchyk602@gmail.com'],
-                fail_silently=False,
-            )
+
+            if task.task_is_set_to.first() != None:
+                send_mail(
+                    'New task',
+                    f'{task.author} marked you in new task.',
+                    'danchyk602@gmail.com',
+                    [str(task.task_is_set_to.first())],
+                    fail_silently=False,
+                )
             return Response(
-                TaskCreateSerializer(task).data, status=status.HTTP_201_CREATED
+                serializer.data, status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class Task(RetrieveUpdateDestroyAPIView):
+class SingleTask(RetrieveUpdateDestroyAPIView):
     """
         Retrive, update or delete a task instance
     """
@@ -56,6 +59,26 @@ class Task(RetrieveUpdateDestroyAPIView):
     serializer_class = EditTaskSerializer
     queryset = TodoTask.objects.all()
     lookup_field = 'id'
+
+    def post(self, request, *args, **kwargs):
+        serializer = TaskCreateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.validated_data['author'] = self.request.user
+            task = serializer.save()
+
+            if task.task_is_set_to.first() != None:
+                send_mail(
+                    'New task',
+                    f'{task.author} marked you in new task.',
+                    'danchyk602@gmail.com',
+                    [str(task.task_is_set_to.first())],
+                    fail_silently=False,
+                )
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
         self.permission_classes = [IsOwner]

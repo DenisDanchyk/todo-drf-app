@@ -7,11 +7,9 @@ class TodoTask(models.Model):
     text = models.TextField(verbose_name="Текст")
     author = models.ForeignKey(
         UserBase, on_delete=models.CASCADE, verbose_name="Автор")
-    task_is_set_to = models.ForeignKey(
+    task_is_set_to = models.ManyToManyField(
         UserBase,
-        on_delete=models.CASCADE,
         related_name='user_tasks',
-        null=True,
         blank=True,
         verbose_name="Кому поставлена задача"
     )
