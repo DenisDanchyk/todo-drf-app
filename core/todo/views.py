@@ -1,3 +1,4 @@
+import os
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
@@ -9,6 +10,8 @@ from .models import TodoTask
 from .serializers import (TaskSerializer, TaskCreateSerializer,
                           EditTaskSerializer)
 from .permissions import IsOwner
+
+EMAIL_USER = os.environ['EMAIL_HOST_USER']
 
 
 class ListOfTasks(APIView):
@@ -43,7 +46,7 @@ class CreateTask(CreateAPIView):
                     send_mail(
                         'New task',
                         f'{author} marked you in new task.',
-                        'danchyk602@gmail.com',
+                        f'{EMAIL_USER}',
                         [str(user)],
                         fail_silently=False,
                     )
@@ -76,7 +79,7 @@ class SingleTask(RetrieveUpdateDestroyAPIView):
                 send_mail(
                     'New task',
                     f'{author} marked you in new task.',
-                    'danchyk602@gmail.com',
+                    f'{EMAIL_USER}',
                     [str(user)],
                     fail_silently=False,
                 )
